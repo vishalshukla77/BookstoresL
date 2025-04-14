@@ -8,6 +8,8 @@ import {
 import { IoSearchOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import avatar from "../assets/avatar.png";
+import { useSelector } from 'react-redux';
+import { useAuth } from '../context/Addcontext';
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard" },
@@ -17,14 +19,16 @@ const navigation = [
 ];
 
 const Navbar = () => {
-  const currentUser = true; // simulate auth state
-  const [isDropdownOpen, setIsDropdownopen] = useState(false);
+  const { currentUser, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const cartItems = useSelector(state => state.cart.cartItems);
+
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownopen(false);
+        setIsDropdownOpen(false);
       }
     }
 
@@ -34,13 +38,17 @@ const Navbar = () => {
     };
   }, []);
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <header className="max-w-screen-2xl mx-auto px-4 py-6">
       <nav className="flex justify-between items-center">
         {/* Left side */}
         <div className="flex items-center md:gap-16 gap-4">
           <Link to="/">
-            <HiMenuAlt3 className="size-6" />
+            <HiMenuAlt3 className="text-2xl" />
           </Link>
 
           <div className="relative sm:w-72 w-40 space-x-2">
@@ -57,7 +65,7 @@ const Navbar = () => {
         <div className="relative flex items-center md:space-x-3 space-x-2">
           {currentUser ? (
             <div ref={dropdownRef} className="relative">
-              <button onClick={() => setIsDropdownopen(!isDropdownOpen)}>
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                 <img
                   src={avatar}
                   alt="User"
@@ -74,21 +82,30 @@ const Navbar = () => {
                         </Link>
                       </li>
                     ))}
+                    <li>
+                      <button onClick={handleLogout} className="block px-4 py-2 text-sm hover:bg-gray-100">
+                        Logout
+                      </button>
+                    </li>
                   </ul>
                 </div>
               )}
             </div>
           ) : (
             <Link to="/login">
-              <HiOutlineUser className="size-6" />
+              <HiOutlineUser className="text-2xl" />
             </Link>
           )}
 
           <button className="hidden sm:block">
-            <HiOutlineHeart className="size-6" />
+            <HiOutlineHeart className="text-2xl" />
           </button>
-          <Link to="/cart">
-            <HiOutlineShoppingCart className="size-6" />
+
+          <Link to="/cart" className="bg-primary p-1 sm:px-6 px-2 flex items-center">
+            <HiOutlineShoppingCart className="text-2xl" />
+            <span className="ml-1 text-sm font-semibold">
+              {cartItems.length > 0 ? cartItems.length : 0}
+            </span>
           </Link>
         </div>
       </nav>
